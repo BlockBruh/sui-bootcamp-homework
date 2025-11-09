@@ -1,73 +1,27 @@
 ## Sui Bootcamp Homework Assignment
 
-### Simple On-Chain Counter DApp
+# My solution
 
-## Objective
+Package deployment ID: 0x8671751ed31ae86c80a7e6befa349dcc34a8977ad73fa5a6aff578fdb1a5a51d
 
-Create a decentralized counter application where users can create their own personal counter 
-and increment it on-chain. This exercise will test your understanding of Sui Move objects, 
-ownership, and basic transaction handling.
+## Build the contract
 
----
+Run `sui move build`
 
-## Project Requirements
+## Test the functions
 
-### Move Module for Counter
+Create a counter: `sui client ptb \ --move-call 0x8671751ed31ae86c80a7e6befa349dcc34a8977ad73fa5a6aff578fdb1a5a51d::homework::create_counter @0x6` 
 
-Implement a Move module with the following functionality:
+@0x6 is the address of the Clock object used to get the current unix timestamp
 
-#### Core Features:
+Increment the counter: `sui client ptb \ --move-call 0x8671751ed31ae86c80a7e6befa349dcc34a8977ad73fa5a6aff578fdb1a5a51d::homework::increment <OBJECT ID>`
 
-- Create a `Counter` object that stores:
-  - Owner address
-  - Current count value (starting at 0)
-  - Creation timestamp
+## Explaination
 
-- Implement functions to:
-  - `create_counter()` - Creates a new Counter object owned by the caller
-  - `increment()` - Increases the counter value by 1
-  - `get_value()` - Returns the current counter value (read-only)
+The `Counter` object has key and store abilities. So, the first field is the ID (reference to it's location in blockchain storage - address) and also the other data fields (owner, count and creation timestamp)
 
-#### Technical Requirements:
+For the create function, we pass as argument the Clock object in order to store the creation timestamp. Also, the owner is the sender of the transaction and the count is 0 initially. We transfer the counter to the sender as he'll own it.
 
-- Counter must be a Sui object with `key` ability
-- Properly handle object ownership
-- Include basic error handling
-- Add appropriate events for counter creation and increments
+The increment is quite simple. The access is handled by the fact coutner is not a shared option so only the owner can pass it to the function. We pass a mutable reference, increment the count and emit the event.
 
----
-
-## Deployment
-
-- Deploy your module to Sui Testnet
-- Verify the contract is published successfully
-
----
-
-## Submission Requirements
-
-Submit the following:
-
-1. **Transaction Hash or Package ID (Required)**  
-   - The publish transaction hash from Sui Testnet or the package ID
-
-2. **GitHub Repository (Required)**  
-   - Public repository containing your Move code  
-   - Include a `README.md` with:  
-     - Package deployment ID  
-     - Instructions to build the contract  
-     - Brief explanation of your implementation
-
----
-
-## Resources
-
-- Sui Move Documentation  
-- Sui Explorer (Testnet)  
-- Sui Move by Example  
-
-https://docs.sui.io/concepts/sui-move-concepts  
-https://suiscan.xyz/testnet/home  
-https://examples.sui.io/
-
----
+The getter can be used by other modules or packages to easily read the count.
